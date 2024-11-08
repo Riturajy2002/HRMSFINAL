@@ -1,0 +1,498 @@
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="top-part">
+				<div class="logo">
+					<img src="assets/img/logo.png" alt="logo" class="img-fluid">
+				</div>
+				<div  class="user-name"><span>{{screenName}}</span> Dashboard</div>
+
+
+				<!-- User Function Dropdown -->
+				<div class="user-function dropdown">
+					<div class="top-filter">
+				    <!-- Dropdown Trigger -->
+				    <div class="homefilter" id="homefilterDropdownButton" ng-click="hometoggleFilterDropdown()">
+				        <span class="append-year">{{selectedYear}}</span>
+				        <i class="ph-bold ph-funnel"></i>
+				    </div>
+				
+				    <!-- Dropdown Menu -->
+				    <div id="filter-dropDown" class="home-filter-input dropdown-menu filter-dropdown-content right0"
+				         ng-class="{'show': isHomeFilterDropdownVisible}"
+				         aria-labelledby="homefilterDropdownButton">
+				         
+				        <!-- Year Dropdown Input -->
+				        <div class="form-group">
+				            <label for="yearSelect" class="form-label">Select Year</label>
+				            <select id="yearSelect" ng-change="fetchDataForSelectedYear()" 
+				                    class="form-select" ng-model="selectedYear">
+				                <option ng-repeat="year in yearsListForFilter" value="{{year}}">{{year}}</option>
+				            </select>
+				        </div>
+				    </div>
+				</div>
+
+					<div id = "dropdown-menu" class="user-icon" ng-click="toggleDropdown()">
+						<img src="assets/img/user.png" alt="User Icon">
+					</div>
+					<ul id = "menu-items" class="dropdown-menu custom-dropdown-menu"
+						ng-class="{'show': isDropdownVisible}">
+						<li><a class="dropdown-item"
+							ng-class="{'active': isDashboardSelected}"
+							ng-click="selectDashboard()">Dashboard</a></li>
+							
+						<li><a class="dropdown-item" ng-click = "openProfileModal()">Profile</a></li>
+							
+						<li ng-if="hasRole('Admin')"><a class="dropdown-item"
+							ng-click="toggleAddEmployeeDashboard()">Add Employee</a></li>
+							
+							
+						<li class="nav-item dropdown dropdown-new-ul p-0" ng-if="hasRole('Admin')">
+						  <a class=" dropdown-toggle togglepad dropdown-new-item" role="button" ng-click="toggleMenuDropdown('Employee Operations')">
+						    Employee Operations
+						  </a>
+						  <ul class="droopdown-ulbg" ng-show="isDropdownVisibleForOperations">
+						    <li class="list-type-none" ng-repeat="operation in operations">
+						      <a class="dropdown-item" ng-click="handleOperationClick(operation.opCode)">
+						        {{operation.opDesc}}
+						      </a>
+						    </li>
+						  </ul>
+						</li>
+
+
+				        
+						<li ng-if="hasRole('manager')"><a class="dropdown-item"
+							ng-click="toggleActionDashboard()">Approve Request</a></li>
+						<li class="nav-item dropdown dropdown-new-ul p-0" >
+							<a class="dropdown-toggle  togglepad dropdown-new-item"  ng-click="toggleMenuDropdown('Define')">Define</a>
+							<ul class="droopdown-ulbg" ng-show="isDropdownVisibleForDefine">
+						    <li class="list-type-none">
+						      <a class="dropdown-item" ng-click="changeScreenName('Define Type')">
+						        Type
+						      </a>
+						    </li>
+						  </ul>
+						</li>
+						<!-- Screens generation   -->
+						<li class="nav-item dropdown dropdown-new-ul p-0" >
+							<a class="dropdown-toggle  togglepad dropdown-new-item"  ng-click="toggleMenuDropdown('Screens')">Screens</a>
+						<ul class="droopdown-ulbg" ng-show="isDropdownVisibleForScreens">
+							  <li class="list-type-none" ng-repeat="(id, name) in typeNames">
+							    <a class="dropdown-item" ng-click="callCustomScreen(id)">
+							      {{name}}
+							    </a>
+							  </li>
+							</ul>
+						</li>
+						<li ng-if="hasRole('admin')"><a class="dropdown-item"
+							ng-click="toggleAttandenceDashboard()">Attendance</a></li>
+						<li><a class="dropdown-item" ng-click="logout()">Logout</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Modal Profile-->
+		<div class="modal fade" id="profileModal" data-bs-backdrop="static"
+			tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="profileModalLabel">Profile
+							Details</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click="closeProfileModal()"></button>
+					</div>
+					<div class="modal-body">
+						<div class="profile-details">
+							<div class="row">
+								<div class="col-lg-12 prohd">
+									<h6>Employee ID:</h6>
+									<span>{{ userData.id }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Name:</h6>
+									<span>{{ userData.username }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Designation:</h6>
+									<span>{{ userData.designation }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Email ID:</h6>
+									<span> {{ userData.email_id }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Contact No:</h6>
+									<span> {{ userData.contactNo }} </span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Modal Profile-->
+
+		<!--Leave Status of Employees-->
+		<div class="row leave-status" ng-if= "screenName == 'Leave Request'">
+			<!--<div class="col-lg-12 web-hd">Leave Status</div>-->
+			<div class="col-lg-3 col-md-6 mb-2 ">
+				<div class=" total-available-bg pos-relative border4Radious">
+					<div class="leave-st-today total-leave-bg">
+						<div class="st-icon">
+							<i class="ph ph-calendar-check"></i>
+						</div>
+						<div class="st-text">
+							<h5>Total Leave</h5>
+							<h5>[{{ counts.total }}]</h5>
+						</div>
+					</div>
+					<div class="available-leave-breakdown">
+						<div ng-repeat="leave in counts.leaveBreakdown">
+							<span>{{leave.type}}:&nbsp;</span> <span>{{ leave.total}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 mb-2">
+				<div class=" total-available-bg pos-relative border4Radious">
+					<div class="totalboxAva leave-st-today">
+						<div class="st-icon">
+							<i class="ph ph-calendar-check"></i>
+						</div>
+						<div class=" st-text-dropdown st-text"">
+							<h5>Available Leave</h5>
+							<h5>[{{ counts.available }}]</h5>
+						</div>
+					</div>
+					<div class="available-leave-breakdown">
+						<div ng-repeat="leave in counts.leaveBreakdown">
+							<span>{{leave.type}}:&nbsp;</span> <span>{{
+								leave.available}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 mb-2">
+				<div class=" total-available-bg pos-relative border4Radious">
+					<div class="leave-st-today total-approved-bg">
+						<div class="st-icon">
+							<i class="ph ph-calendar-check"></i>
+						</div>
+						<div class="st-text">
+							<h5>Approved Leave</h5>
+							<h5>[{{ counts.approved }}]</h5>
+						</div>
+					</div>
+					<div class="available-leave-breakdown">
+						<div ng-repeat="leave in counts.leaveBreakdown">
+							<span>{{leave.type}}:&nbsp;</span> <span>{{
+								leave.approved}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="col-lg-3 col-md-6 mb-2">
+				<div class=" total-available-bg pos-relative border4Radious">
+					<div class="leave-st-today total-declined-bg">
+						<div class="st-icon">
+							<i class="ph ph-calendar-check"></i>
+						</div>
+						<div class="st-text">
+							<h5>Pending Leave</h5>
+							<h5>[{{ counts.pending }}]</h5>
+						</div>
+					</div>
+
+					<div class="available-leave-breakdown">
+						<div ng-repeat="leave in counts.leaveBreakdown">
+							<span>{{leave.type}}:&nbsp;</span> <span>{{
+								leave.pending}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Leave Status of Employees-->
+
+
+
+		<!--Leave Application for the  Employees-->
+		<div class="row" ng-if= "screenName == 'Leave Request'">
+			<div class="col-lg-4 col-md-6 mt-1 mb-2">
+				<div class="leave-from">
+					<div class="web-hd web-hd-line mb-1">Apply Leaves</div>
+					<form name="leaveForm" ng-submit="submitForm()" novalidate>
+						<!-- Leave Type -->
+						<div class="mb-2">
+							<label for="type" class="form-label">Leave Type<span>*</span></label>
+							<select id="code" name="code" ng-model="leaveRequest.code"
+								ng-change="handleLeaveTypeChange()" class="form-select" required>
+								<option value="" disabled>Select Leave Type</option>
+								<option ng-repeat="type in leaveTypes" value="{{type.code}}">{{type.leaveName}}({{type.code}})</option>
+							</select>
+							<div class="error-danger"
+								ng-show="leaveForm.type.$touched && leaveForm.type.$invalid">
+								Please select a leave type.</div>
+						</div>
+						<!-- From Date -->
+						<div class="row g-2">
+							<div class="col-lg-6">
+								<div class="mb-2">
+									<label for="fromdateInput" class="form-label">From Date<span>*</span></label>
+									<input type="date" id="fromdateInput" name="fromDate"
+										ng-model="leaveRequest.fromDate" class="form-control"
+										ng-readonly="isDateFieldsReadOnly"
+										ng-click="showFlexiModalOnDate($event)"
+										ng-change="updateToDate()"
+										min="{{yearMinDate | date: 'yyyy-MM-dd'}}"
+										max="{{yearMaxDate | date: 'yyyy-MM-dd'}}" required>
+									<div class="error-danger"
+										ng-show="leaveForm.fromDate.$touched && leaveForm.fromDate.$invalid">
+										Please enter a valid start date.</div>
+								</div>
+							</div>
+							<!-- To Date -->
+							<div class="col-lg-6">
+								<div class="mb-2">
+									<label for="todateInput" class="form-label">To Date<span>*</span></label>
+									<input type="date" id="todateInput" name="toDate"
+										ng-model="leaveRequest.toDate" class="form-control"
+										ng-readonly="isDateFieldsReadOnly"
+										ng-click="showFlexiModalOnDate($event)"
+										ng-change="checkEligibility()"
+										min="{{minDate | date:'yyyy-MM-dd'}}"
+										max="{{yearMaxDate | date:'yyyy-MM-dd'}}" required>
+									<div class="error-danger"
+										ng-show="leaveForm.toDate.$touched && leaveForm.toDate.$invalid">
+										Please enter a valid end date.</div>
+								</div>
+							</div>
+						</div>
+						<!-- Reason -->
+						<div class="mb-2">
+							<label for="reason" class="form-label">Reason<span>*</span></label>
+							<textarea id="reason" name="reason"
+								ng-model="leaveRequest.reason" rows="2" class="form-control"
+								ng-pattern="/^[a-zA-Z\s.]*$/" required></textarea>
+							<div class="error-danger"
+								ng-show="leaveForm.reason.$touched && leaveForm.reason.$invalid">
+								<div ng-show="leaveForm.reason.$error.required">Reason is
+									required.</div>
+								<div ng-show="leaveForm.reason.$error.pattern">Only
+									alphabetic characters are allowed.</div>
+							</div>
+						</div>
+						<!-- Reporting Manager -->
+						<div class="mb-2">
+							<label for="manager" class="form-label">Approver</label>
+							<input type="text" id="manager" name="manager"
+								ng-model="leaveRequest.manager" class="form-control" disabled>
+						</div>
+						<!-- Selected Days -->
+						<div class="submit-selcted">
+							<div class="selected-date">
+								Selected Days: <span>{{ leaveRequest.numberOfDays }}</span>
+							</div>
+							<!-- Submit Button -->
+							<button type="submit" class="btn btn-primary"
+								ng-disabled="leaveForm.$invalid">Submit</button>
+						</div>
+					</form>
+					<!-- Display form error message -->
+					<div class=" error-danger validation-error">
+						<div class="error-danger" ng-show="formErrorMessage">{{
+							formErrorMessage }}</div>
+						<!-- Display success message -->
+						<div class="success-message" ng-show="formSuccessMessage">
+							{{ formSuccessMessage }}</div>
+					</div>
+					<p class="flexi-disclaimer">Note : {{leaveDesc[leaveRequest.code]}}</p>
+				</div>
+			</div>
+			<!--End Leave Application for the  Employees-->
+
+
+
+			<!-- Modal for Selecting Flexi Dates -->
+			<div class="modal fade" id="flexiModal" data-bs-backdrop="static"
+				tabindex="-1" aria-labelledby="flexiModalLabel" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header ">
+							<h1 class="modal-title" id="flexiModalLabel">Select Flexi
+								Date</h1>
+							<button type="button" class="btn-close" data-bs-dismiss="modal"
+								aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="table-responsive">
+								<table class="table  select-flexi">
+									<thead>
+										<tr>
+											<th>Name</th>
+											<th>Date</th>
+											<th>Day</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="date in flexiLeaveDays"
+											ng-click="selectFlexiDate(date)">
+											<td>{{ date.name }}</td>
+											<td>{{ date.holidayDate }}</td>
+											<td>{{ date.day }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- End Modal for Selecting Flexi Dates -->
+
+			<!--Show calender for the  Employees-->
+			<div class="col-lg-4 col-md-6 mt-1 mb-2" calendar>
+				<div class="leave-calender">
+					<div class="calender-box">
+						<header>
+							<p class="current-date"></p>
+							<div class="icons">
+								<span id="prev" class="material-symbols-rounded"> <i
+									class="ph-bold ph-caret-left"></i>
+								</span> <span id="next" class="material-symbols-rounded"> <i
+									class="ph-bold ph-caret-right"></i>
+								</span>
+							</div>
+						</header>
+						<div class="calendar">
+							<ul class="weeks">
+								<li>Sun</li>
+								<li>Mon</li>
+								<li>Tue</li>
+								<li>Wed</li>
+								<li>Thu</li>
+								<li>Fri</li>
+								<li>Sat</li>
+							</ul>
+							<ul class="days"></ul>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--End Show calender for the  Employees-->
+
+
+			<!--Show Holidays for the  Employees-->
+			<div class="col-lg-4 mt-1 mb-2">
+				<div class="leave-overview">
+					<ul class="nav nav-tabs border-0" id="myTab" role="tablist">
+						<li class="nav-item" role="presentation">
+							<div class="active web-hd" id="CompanyHolidays"
+								data-bs-toggle="tab" data-bs-target="#CompanyHolidays-pane"
+								type="button" role="tab" aria-controls="CompanyHolidays-pane"
+								aria-selected="true">Company Holidays</div>
+						</li>
+						<li class="nav-item" role="presentation">
+							<div class="web-hd" id="flexiHolidays" data-bs-toggle="tab"
+								data-bs-target="#flexiHolidays-pane" type="button" role="tab"
+								aria-controls="flexiHolidays-pane" aria-selected="false">Flexi
+								Holidays</div>
+						</li>
+					</ul>
+					<div class="tab-content flexi-data" id="myTabContent">
+						<div class="tab-pane fade show active" id="CompanyHolidays-pane"
+							role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+							<div class="table-responsive" id="holiday">
+								<table class="flexi_table table table-borderless">
+									<thead>
+										<tr>
+											<th scope="col">Name</th>
+											<th scope="col">Date</th>
+											<th scope="col">Day</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="holiday in fixedHolidays">
+											<td>{{holiday.name}}</td>
+											<td>{{holiday.holidayDate | date:'dd-MM-yyyy' }}</td>
+											<td>{{holiday.day }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="flexiHolidays-pane" role="tabpanel"
+							aria-labelledby="profile-tab" tabindex="0">
+							<div class="table-responsive">
+								<table class="flexi_table table table-borderless mb-0">
+									<thead>
+										<tr>
+											<th scope="col">Name</th>
+											<th scope="col">Date</th>
+											<th scope="col">Day</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr ng-repeat="flexiholiday in flexiLeaveDays">
+											<td>{{flexiholiday.name}}</td>
+											<td>{{flexiholiday.holidayDate | date:'dd-MM-yyyy' }}</td>
+											<td>{{flexiholiday.day }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<p class="flexi-disclaimer">Note : {{leaveDesc["FL"]}}</p>
+						</div> 
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Show Holidays for the  Employees-->
+
+		<!-- Cancel Request Modal -->
+		<div class="modal fade" id="cancelRequestModal"
+			data-bs-backdrop="static" tabindex="-1"
+			aria-labelledby="cancelRequestLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="cancelRequestLabel">Cancel
+							Leave Request</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<div class="leave-cancel">Are you sure you want to cancel
+							this leave request?</div>
+						<div class="footerbtn mb-3">
+							<button type="button" class="btn btn-danger"
+								ng-click="formConfirmation()">Yes</button>
+							<button type="button" class="btn btn-secondary"
+								data-bs-dismiss="modal">No</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- End Cancel Request Modal -->
+		
+		<define ng-if="screenName == 'Define Type' "  screen ='screenName' token="userData.token"></define>
+		<custom-screen ng-if="screenName != 'Define Type' && screenName != 'Leave Request'" screen ='screenName' token="userData.token" params="screenParams" call-back="callback(item)"
+			page-data="customScreenPageData" total-Records="customScreenTotalRecords" page-size="pageSize" filter-obj="customScreenFilterData"></custom-screen>
+		<!-- CustomGrid  -->
+		<custom-grid  ng-if=" screenName == 'Leave Request'  && filterData && pageData  "  page-data="pageData"
+			total-Records="totalRecords" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterData"
+			call-back="loadData(item)"  year-min-date="yearMinDate" year-max-date="yearMaxDate"
+			></custom-grid>
+
+	</div>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+	<script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>

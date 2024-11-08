@@ -1,0 +1,148 @@
+<div class="row align-items-center attendance-tab">
+	<div class="web-hd col-lg-5 col-md-6" >{{screen}} <span class='golbal' ><input type='text' ng-model="searchItem" id='searchInput' ng-change='filterGrid()'><i class="ph" ng-class="{' ph-magnifying-glass':(searchItem.length == 0)}"></i></span></div>
+
+	<div class="col-lg-7 col-md-6">
+		<div class="table-data-export">
+			<span class="perPageRecord"><label for="pageSize">Records
+					per page:</label></span> <span> <select id="pgSize"
+				class="form-control select-num" ng-model="pageSize"
+				ng-change="updateItemsPerPage()">
+					<option ng-value="25">25</option>
+					<option ng-value="50">50</option>
+					<option ng-value="100">100</option>
+					<option ng-value="200">200</option>
+					<option ng-value="500">500</option>
+					<option ng-value="1000">1000</option>
+			</select>
+			</span> <span class="download" ng-click="downloadEmployeesReport()">
+				<span>Export To Excel</span> <i class="ph-bold ph-download-simple"></i>
+			</span> <span class="leave-filter-input dropdown">
+				<button class="btn btn-secondary filter-btn" type="button"
+					id="filterDropdownButton" ng-click="toggleFilterDropdown()">
+					<i class="ph ph-funnel"></i><span> Filter </span> 
+				</button>
+			</span>
+		</div>
+	</div>
+<!-- Filter Bar -->	
+</div>
+
+<div class="filter-home-drop dropdown-menu filter-dropdown-content right10"
+ng-class="{'show': isFilterDropdownVisible}" aria-labelledby="filterDropdownButton">
+	<div class="p-3">
+		<div class="row">
+			<!-- Leave Types Filter -->
+			<div class="col-sm-6"
+				ng-repeat="(key, value) in filterObjs" >
+				
+					<label mb-2 for="inputLeaveType" class="form-label">{{value.desc}}</label>
+					<div ng-if="value.type == 'multi_select'" id="filter"  ng-dropdown-multiselect="" class="pull-right " options="value.options" selected-model="value.value"></div>
+					<!-- <select mb-2 ng-if="value.type == 'multi_select'"
+						id="leave-types-multiple" class="form-select" ng-dropdown-multiselect required ng-model="value.value">
+						<option ng-repeat="item in  filterObj.refData[value.sourceId]"
+							value="{{item.refValue}}">{{item.refName}}</option>
+					</select> -->  
+					
+					<select ng-if="value.type == 'select'" id="{{name}}"
+						name="{{name}}" ng-model="value.value" class="form-select">
+						<option value="" disabled>Select {{value.desc}}</option>
+						<option ng-repeat="item in filterObj.refData[value.sourceId]"
+							value="{{item.refValue}}">{{item.refName}}</option>
+					</select> 
+					
+					<input ng-if="value.type == 'text'" class="form-control"
+						type="text" id="{{name}}" name="{{name}}" ng-model="value.value" />
+						
+					<input mb-2 ng-if="value.type == 'date'" class="form-control"
+						type="date" name='startDate'
+						min="{{yearMinDate | date:'yyyy-MM-dd'}}"
+						max="{{yearMaxDate | date:'yyyy-MM-dd'}}" ng-model="value.value" />
+			</div>
+
+
+			<div class="col-sm-12 mt-2">
+				<button type="butt	on" class="btn btn-primary"
+					ng-click="applyFilters()">Apply</button>
+				<button type="button" class="btn btn-secondary"
+					ng-click="clearFilters()">Clear</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!--Show Leaves Applied By the Employees  Employees-->
+<div class="row">
+	<div class="col-lg-12">
+		<div class="table-container"  >
+			<div class="table-responsive"  ng-class="{'table-scroll-md':screen == 'Leave Details', 'table-scroll-lg':screen == 'Leave Credit/Debit Details','scroll-emp-leave-details':screen == 'Emp Leave Details', 'scroll-registered-employees':screen == 'Registered employees', 'scroll-list-of-employees':screen == 'List of Employees','scroll-employees-details':screen == 'Employee Details' ,'scroll-employees-leave-details':screen == 'Emp leave Details' }">
+				<table class="table table-bordered custom-table">
+					<thead class="table-light">
+						<tr>
+							<th  ng-if="pageData && pageData.length" ng-repeat="(key, value) in pageData[0]">
+								<span ng-if="key !== 'Selection'">{{key}}</span> 
+								<input type="checkbox" ng-if="key === 'Selection'" ng-click="allCheck(-1)" ng-model="allChecked"/>
+							</th>
+							<div ng-if="!pageData || !pageData.length" style="text-align: center;">No Data Found</div>
+						</tr>
+					</thead>
+					<tbody>
+						<tr ng-init="parentIndex = $index" ng-repeat="request in pageData track by $index">
+							<td   ng-class="{'for-checkbox':key =='Selection', 'action-btns':key == 'Action' }"   ng-repeat="(key, value) in request ">
+								<span  class="ActionButtons" ng-if="key == 'Action' || key == 'Employees'" >
+										 <div class="btngroup" ng-if="screen == 'Leave Details'">
+											<button   title="{{value}}" type="button" class="btn" data-bs-toggle="modal"
+												data-bs-target="#cancelRequestModal"
+												ng-click="actionCall(request, request.Action)"
+												ng-class="{'btn-outline-warning': request.Status == 'Pending'}">
+												{{value}}</button>
+										</div> 
+										
+										<div   ng-if="screen != 'Leave Details'" ng-repeat="action in listOfActions" >
+											 <button  title="{{value}}" ng-if=" action.type != 'view' && action.type != 'edit' && action.type != 'show' && request.Status == 'Pending'" ng-class="{'btn btn-outline-success': action.type === 'approve','btn btn-outline-danger': action.type === 'decline'}"
+											 ng-click="actionCall(request, action.type)">{{action.desc}}</button>
+											 <span   title="{{value}}" ng-if="action.type == 'show'"  class="overflow-data-dott" ng-click="actionCall(request, action.type)">{{value}}</span>
+											 <span  title="{{value}}"  ng-if="action.type == 'view'" ng-click="actionCall(request, action.type)"><i class="ph ph-eye" ></i></span>
+											 <span title="{{value}}" ng-if="action.type == 'edit'" ng-click="actionCall(request, action.type)"><i class="ph ph-pencil"></i></span>
+										</div> 
+
+							</span>              
+								<span  title="{{value}}"  ng-if="key == 'Selection'"> <input type="checkbox"
+										ng-if="key == 'Selection'" ng-click="allCheck(parentIndex)"
+										ng-model="value" />
+								</span>
+								
+								<span  title="{{value}}" ng-if="key != 'Action' && key !='Selection' && key != 'Employees'" class="overflow-data-dott">{{value}}</span>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<!--End Show Leaves Applied By the Employees  Employees-->
+
+			<div class="pagination-box mb-1">
+				<nav aria-label="Page navigation example">
+					<ul class="pagination mb-0">
+						<li class="page-item" ng-class="{disabled: currentPage === 1}">
+							<a class="page-link" href="#" aria-label="Previous"
+							ng-click="$event.preventDefault(); changePage(currentPage - 1)">
+								<span aria-hidden="true">&laquo;</span>
+						</a>
+						</li>
+						<li class="page-item"
+							ng-repeat="n in [].constructor(totalPages) track by $index"
+							ng-class="{active: $index + 1 === currentPage}"><a
+							class="page-link" 
+							ng-click="$event.preventDefault(); changePage($index + 1)">
+								{{$index + 1}} </a></li>
+						<li class="page-item"
+							ng-class="{disabled: currentPage === totalPages}"><a
+							class="page-link" aria-label="Next"
+							ng-click="$event.preventDefault(); changePage(currentPage + 1)">
+								<span aria-hidden="true">&raquo;</span>
+						</a></li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>

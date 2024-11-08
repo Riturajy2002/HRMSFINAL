@@ -1,0 +1,203 @@
+	<div class="container-fluid mt-3">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="employ-body mb-3">
+						<div class="regNewUser-hd">
+						<span class="web-hd">{{screen}}</span>
+						</div>
+						<form class="addempForm" ng-submit="submitForm()">
+							<div class="row">
+								<!-- Employee ID Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2">
+									<label for="typeName" class="form-label">ID <span style="color:red ">*</span></label>
+								
+									<input type="text" ng-model="obj.typeId" 
+										name="typeName" class="form-control"required>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="typeName" class="form-label">Name <span style="color:red ">*</span></label>
+								
+									<input type="text" ng-model="obj.typeName" 
+										name="typeName" class="form-control"required>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="parentType" class="form-label">Parent Type</label>
+								
+									<select id="parentType"  ng-model="obj.parentName" name="parentType" class="form-select">
+									    <option value="" disabled>Select Parent Type</option>
+									    <option ng-repeat="(key, value) in typeNames" value="{{key}}">
+									        {{value}}
+									    </option>
+									</select>
+								</div>
+								<div class="col-md-2 col-lg-1 col-xl-1 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<div class="check-style">
+									<label for="dataModel" class="form-label">Data Model <span style="color:red ">*</span></label>
+								
+									<input type="checkbox" ng-model="obj.dataModel" 
+										name="active" required>
+									</div>
+								</div>
+								<div class="col-md-2 col-lg-2 col-xl-1 mb-2 checkbox-width"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<div class="check-style">
+									<label for="active" class="form-label">Active <span style="color:red ">*</span></label>
+								
+									<input type="checkbox" ng-model="obj.active" 
+										name="active" required>
+									</div>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2" ng-if="obj.dataModel && obj.active">
+									<div class="check-style">
+										<label for="dataModel" class="form-label">Add Config</label>
+										<i class="ph ph-gear-six" data-bs-toggle="modal" data-bs-target="#dataModelConfig"></i>
+									</div>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2">
+									<button type="submit"
+										class="btn btn-success register-form-submit"
+										ng-disabled="registrationForm.$invalid">Submit</button>
+								</div>
+								
+							</div>
+
+						</form>
+						<!-- Success message display -->
+					</div>
+               </div>
+              <!--  Data model Config  -->
+				 <div class="modal fade" id="dataModelConfig" tabindex="-1"
+			aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title" id="userDetailsModalLabel">
+							Add Data Model Fields</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click = "closeShowDetailsModal()"></button>
+					</div>
+					<div class="modal-body">
+						<form class="addempForm">
+							<div class="row">
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="headingName" class="form-label">Heading Name <span
+										style="color: red">*</span></label> <input type="text"
+										ng-model="modelConfigObj.headingName" name="headingName" class="form-control"
+										required>{{modelConfigObj.headingName}}
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="name" class="form-label">Field-ID <span
+										style="color: red">*</span></label> <input type="text"
+										ng-model="modelConfigObj.fieldId" name="name" class="form-control"
+										required>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="alias" class="form-label">Field Name <span
+										style="color: red">*</span></label> <input type="text"
+										ng-model="modelConfigObj.fieldName" name="alias" class="form-control"
+										required>
+								</div>
+
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="alias" class="form-label">Data Type <span
+										style="color: red">*</span></label> 
+										<select name="data-type" id="data-type" class="form-select" required
+										ng-model="modelConfigObj.dataType">
+										<option ng-value="'Select'" disabled>Select Data Type</option>
+											<option ng-value="'custom'">Custom</option>
+											<option ng-value="'text'">Text</option>
+											<option ng-value="'file'">File</option>
+											<option ng-value="'number'">Number</option>
+											<option ng-value="'date'">Date</option>
+											<option ng-value="'dropdown'">Dropdown</option>
+											<option ng-value="'radio'">Radio</option>
+											<option ng-value="'checkbox'">Checkbox</option>
+											<option ng-value="'email'">Email</option>
+									</select>
+								</div>
+
+								<div class="col-md-2 col-lg-2 col-xl-1 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<div class="check-style">
+										<label for="mandatory" class="form-label">Mandatory <span
+											style="color: red">*</span></label> <input type="checkbox"
+											ng-model="modelConfigObj.mandatory" name="mandatory" required>
+									</div>
+								</div>
+								<div class="col-md-2 col-lg-2 col-xl-1 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<div class="check-style">
+										<label for="showInGrid" class="form-label">Show in Grid </label> <input type="checkbox"
+											ng-model="modelConfigObj.showInGrid" name="showInGrid" >
+									</div>
+								</div>
+								<div class="col-md-2 col-lg-2 col-xl-1 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<div class="check-style">
+										<label for="active" class="form-label">Active <span
+											style="color: red">*</span></label> <input type="checkbox"
+											ng-model="modelConfigObj.active" name="active" required>
+									</div>
+								</div>
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2">
+									<span ng-click="addFields()"
+										class="btn btn-success register-form-submit"
+										>Add</span>
+								</div>
+								</form>
+								<div class="table-responsive mt-2" ng-if="showGridInModelConfig">
+								<div class="align-items-center attendance-tab mt-2"></div>
+									<table class="table table-bordered custom-table">
+										<thead class="table-light">
+											<tr>
+												<th>Action</th>
+												<th>Head Name</th>
+												<th>Field-ID</th>
+												<th>Field Name</th>
+												<th>Data Type</th>
+												<th>Mandatory</th>
+												<th>Show in Grid</th>
+												<th>Active</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr ng-repeat="(key, value) in gridfieldList">
+												<td><i class="ph ph-pencil"></i></td>
+												<td>{{value.headingName}}</td>
+												<td>{{value.fieldId}}</td>
+												<td>{{value.fieldName}}</td>
+												<td>{{value.dataType}}</td>
+												<td>{{value.mandatory}}</td>
+												<td>{{value.showInGrid}}</td>
+												<td>{{value.active}}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+				  <!-- CustomGrid  -->
+		  <custom-grid  ng-if=" screen == 'Define Type' && filterData && pageData.length > 0" page-data="pageData"
+			total-Records="totalRecords" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterData"
+			></custom-grid>
+			 <custom-grid  ng-if=" screen == 'Reference Details' && filterDataForReference && pageDataForReference.length > 0" page-data="pageDataForReference"
+			total-Records="totalRecordsOfReference" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterDataForReference"
+			></custom-grid>
+				 
+			</div>
+			
+		</div>
+	</div>

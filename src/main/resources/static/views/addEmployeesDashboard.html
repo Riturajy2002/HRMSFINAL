@@ -1,0 +1,352 @@
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="top-part">
+				<div class="logo">
+					<img src="assets/img/logo.png" alt="logo" class="img-fluid">
+				</div>
+				<div class="user-name">Add Employee Dashboard</div>
+
+				<!-- User Function Dropdown -->
+				<div class="user-function dropdown"
+					ng-controller="leaveRequestFormDashboardController">
+					<div class="user-icon " ng-click="toggleDropdown()">
+						<img src="assets/img/user.png" alt="User Icon">
+					</div>
+					<ul class="dropdown-menu custom-dropdown-menu"
+						ng-class="{'show': isDropdownVisible}">
+						<li><a class="dropdown-item" ng-click="toggleUserDashboard()">Dashboard</a></li>
+						<li><a class="dropdown-item" ng-click = "openProfileModal()">Profile</a></li>
+						<li><a class="dropdown-item" ng-click="logout()">Logout</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Modal Profile-->
+		<div class="modal fade" id="profileModal" data-bs-backdrop="static"
+			tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="profileModalLabel">Profile
+							Details</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click="closeProfileModal()"></button>
+					</div>
+					<div class="modal-body">
+						<div class="profile-details">
+							<div class="row">
+								<div class="col-lg-12 prohd">
+									<h6>Employee ID:</h6>
+									<span>{{ userData.id }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Name:</h6>
+									<span>{{ userData.username }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Designation:</h6>
+									<span>{{ userData.designation }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Email ID:</h6>
+									<span> {{ userData.email_id }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Contact No:</h6>
+									<span> {{ userData.contactNo }} </span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--End Modal Profile-->
+
+<!--Register New User -->
+	<div class="container-fluid mt-3">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="employ-body mb-3">
+						<div class="regNewUser-hd">
+						   <i class="ph ph-caret-circle-left" ng-if="isEditMode" ng-click="switchToRegisterMode()" ></i>
+						<span class="web-hd">{{ isEditMode ? 'Update Employee' : 'Register New Employee' }}</span>
+						</div>
+						<form class="addempForm" ng-submit="submitForm()"  name="registrationForm" autocomplete="off"
+							novalidate>
+							<div class="row">
+
+								<!-- Employee ID Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.id.$invalid && registrationForm.id.$touched, 'has-success': registrationForm.id.$valid}">
+									<label for="inputEmpId" class="form-label">Employee ID</label>
+								
+									<input type="text" ng-model="newUser.id" ng-change="generateUserId(isEditMode)"
+										name="id" class="form-control" placeholder="Employee ID" ng-disabled="isEditMode" required>
+								
+									<p class="help-block error-danger"
+										ng-if="registrationForm.id.$error.required && registrationForm.id.$touched">Employee ID is required</p>
+								</div>
+
+								
+								
+								<!-- Organization Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.organization.$invalid && registrationForm.organization.$touched, 'has-success': registrationForm.organization.$valid}">
+									<label for="OrganizationId" class="form-label">Organization</label> 
+									
+							  <select id="inputorganization" name="organization" ng-model="newUser.organization"
+									   ng-change="generateUserId(isEditMode)" class="form-select" required>
+                                      <option value="" disabled>Select Organization</option>
+                                     <option ng-repeat="organization in organizations" value="{{organization.refValue}}">{{organization.refName}}</option>
+                             </select>
+                            
+									<p class="help-block error-danger"
+										ng-if="registrationForm.organization.$error.required && registrationForm.organization.$touched">Organization
+										is required</p>
+								</div>
+								
+								
+								<!-- User-ID Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.userId.$invalid && registrationForm.userId.$touched, 'has-success': registrationForm.userId.$valid}">
+									
+									 <label for="inputUserId" class="form-label">Employee User-ID</label> 
+                                    <input type="text" ng-model="newUser.userId" 
+                                    name="userId" class="form-control" placeholder="Employee User-ID" disabled>
+									
+									<p class="help-block error-danger"
+										ng-if="registrationForm.userId.$error.required && registrationForm.userId.$touched">User-ID
+										is required</p>
+								</div>
+
+
+
+								<!-- Employee Name Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.username.$invalid && registrationForm.username.$touched, 'has-success': registrationForm.username.$valid}">
+									<label for="inputUsername" class="form-label">Employee Name</label>
+										
+										 <input type="text" ng-model="newUser.name" name="name" 
+										 class="form-control" placeholder="Employee Name" required>
+
+									<p class="help-block error-danger"
+										ng-if="registrationForm.name.$error.required && registrationForm.name.$touched">Name
+										is required</p>
+								</div>
+								
+								
+								<!-- Department Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.department.$invalid && registrationForm.department.$touched, 'has-success': registrationForm.department.$valid}">
+								    <label for="inputDepartment" class="form-label">Department</label>
+								    
+								     <select id="inputDepartment" ng-change="getDesignations(newUser.department)"
+                                      ng-model="newUser.department" name="department" class="form-select" required>
+                                     <option value="" disabled>Select Department</option>
+                                     <option ng-repeat="department in departments" value="{{department.refValue}}">{{department.refName}}</option>
+                                   </select>
+								      
+								    <p class="help-block error-danger"
+								        ng-if="registrationForm.department.$error.required && registrationForm.department.$touched">Department is required</p>
+								</div>
+								
+								<!-- Designation Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.designation.$invalid && registrationForm.designation.$touched, 'has-success': registrationForm.designation.$valid}">
+								    <label for="inputDesignation" class="form-label">Designation</label>
+			                     
+			                     <select id="inputDesignation" name="designation" ng-model="newUser.designation"
+			                      class="form-select" required>
+                                <option value="" disabled>Select Designation</option>
+                                <option ng-repeat="designation in designations" value="{{designation.refValue}}">{{designation.refName}}</option>
+                               </select>
+                            
+							 <p class="help-block error-danger" ng-if="registrationForm.designation.$error.required && registrationForm.designation.$touched">Designation is required</p>
+								</div>
+
+
+							    <!-- Roles Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2">
+									<label for="role" class="form-label">Roles</label>
+									<div  name="role"
+										ng-class="{'has-error': registrationForm.role.$invalid && registrationForm.role.$touched, 'has-success': registrationForm.role.$valid}"
+										id="filter" ng-dropdown-multiselect="" class="pull-right "
+										options="roleChoices" selected-model="selectedRoles">
+										<p class="help-block error-danger"
+											ng-if="selectedRoles.length < 1 && registrationForm.role.$error.required && registrationForm.role.$touched">
+											Roles are required</p>
+									</div>
+								</div>
+								<!-- 	<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								     ng-class="{'has-error': registrationForm.role.$invalid && registrationForm.role.$touched, 'has-success': registrationForm.role.$valid}">
+								    <label for="inputRoles" class="form-label">Roles</label>
+								
+								    Combined Add/Edit Mode
+								    <select id="choices-multiple-remove-button" 
+								            ng-model="newUser.role" 
+								            multiple 
+								            class="form-control" 
+								            name="role"  
+								            choices-dropdown 
+								            choices-options="{removeItemButton: true, shouldSort: false, duplicateItemsAllowed: false, placeholder: true, placeholderValue: 'Select Roles'}"
+								           
+								            required>
+								        <option value="User">User</option>
+								        <option value="Admin">Admin</option>
+								        <option value="Manager">Manager</option>
+								    </select>
+								    
+								    Error message for validation
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.role.$error.required && registrationForm.role.$touched">
+								       Roles are required
+								    </p>
+								</div> -->
+
+								<!-- Reporting Manager Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.reportManager.$invalid && registrationForm.reportManager.$touched, 'has-success': registrationForm.reportManager.$valid}">
+								    <label for="inputReporting" class="form-label">Reporting Manager(Optional)</label>
+								    
+								     <select id="inputReporting" ng-model="newUser.reportManager" name="reportManager" class="form-select">
+                                <option value="" disabled>Select Reporting Manager</option>
+                                <option ng-repeat="reportManager in reportingManagers" value="{{reportManager.userId}}">{{reportManager.name}} ({{reportManager.userId}})</option>
+                            </select>
+									 <p class="help-block error-danger"
+								        ng-if="registrationForm.reportManager.$error.required && registrationForm.reportManager.$touched">
+								        Reporting Manager is required
+								    </p>
+								</div>
+								
+                                   
+                                   <!-- location Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.location.$invalid && registrationForm.location.$touched, 'has-success': registrationForm.location.$valid}">
+									<label for="inputLocation" class="form-label">Location</label>
+									 
+									 <select id="inputLocation" ng-model="newUser.location" name="location" class="form-select" required>
+                                <option value="" disabled>Select Location</option>
+                                <option ng-repeat="location in locations" value="{{location.refValue}}">{{location.refName}}</option>
+                            </select>
+                            
+									<p class="help-block error-danger"
+										ng-if="registrationForm.location.$error.required && registrationForm.location.$touched">Location
+										is required</p>
+								</div>
+                                 
+                                <!-- Gender Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+									ng-class="{'has-error': registrationForm.gender.$invalid && registrationForm.gender.$touched, 'has-success': registrationForm.gender.$valid}">
+									<label for="inputGender" class="form-label">Gender</label> 
+									
+									<select id="inputGender" ng-model="newUser.gender" name="gender" class="form-select" required>
+                                <option value="" disabled>Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                               </select>
+                               
+									<p class="help-block error-danger"
+										ng-if="registrationForm.gender.$error.required && registrationForm.gender.$touched">Gender
+										is required</p>
+								</div>
+                                   
+                                   
+								<!-- email ID Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.emailId.$invalid && registrationForm.emailId.$touched, 'has-success': registrationForm.emailId.$valid}">
+								    <label for="inputemailId" class="form-label">email ID</label>
+								    <input type="emailId" name="emailId" ng-model="newUser.emailId" 
+								           class="form-control" placeholder="email ID" required>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.emailId.$error.required && registrationForm.emailId.$touched">email ID is required</p>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.emailId.$error.emailId && registrationForm.emailId.$touched && !registrationForm.emailId.$error.required">Invalid emailId format</p>
+								</div>
+								
+								<!-- Contact Number Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.contactNo.$invalid && registrationForm.contactNo.$touched, 'has-success': registrationForm.contactNo.$valid}">
+								    <label for="inputcontactNo" class="form-label">Contact Number</label>
+								    <input type="tel" ng-model="newUser.contactNo" 
+								           name="contactNo" class="form-control" placeholder="Contact Number" required ng-pattern="/^\d{10}$/">
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.contactNo.$error.required && registrationForm.contactNo.$touched">Contact Number is required</p>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.contactNo.$error.pattern && registrationForm.contactNo.$touched">Contact Number must be 10 digits</p>
+								</div>
+								
+								<!-- Birth Date Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.birthDate.$invalid && registrationForm.birthDate.$touched, 'has-success': registrationForm.birthDate.$valid}">
+								    <label for="inputBirthDate" class="form-label">Birth Date</label>
+								    <input type="date" ng-model="newUser.birthDate" 
+								           name="birthDate" class="form-control" placeholder="Birth Date" required>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.birthDate.$error.required && registrationForm.birthDate.$touched">Birth Date is required</p>
+								</div>
+								
+								<!-- Work Anniversary Date Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.anniversaryDate.$invalid && registrationForm.anniversaryDate.$touched, 'has-success': registrationForm.anniversaryDate.$valid}">
+								    <label for="inputAnniversaryDate" class="form-label">Work Anniversary Date</label>
+								    <input type="date" ng-model="newUser.anniversaryDate" 
+								           name="anniversaryDate" class="form-control" placeholder="Work Anniversary Date" required>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.anniversaryDate.$error.required && registrationForm.anniversaryDate.$touched">Anniversary Date is required</p>
+								</div>
+								
+								<!-- Password Field -->
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2"
+								    ng-class="{'has-error': registrationForm.password.$invalid && registrationForm.password.$touched, 'has-success': registrationForm.password.$valid}">
+								    <label for="inputPassword" class="form-label">Password</label>
+								    <input type="{{showPassword ? 'text' : 'password'}}" ng-model="newUser.password"  
+								           name="password" class="form-control" placeholder="Password" required ng-minlength="8">
+								    <div class="input-group">
+								        <span class="input-group-append">   
+								            <i class="{{showPassword ? 'ph ph-eye' : 'ph ph-eye-slash'}}" ng-click="togglePasswordVisibility()"></i>
+								        </span>
+								    </div>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.password.$error.required && registrationForm.password.$touched">Password is required</p>
+								    <p class="help-block error-danger"
+								       ng-if="registrationForm.password.$error.minlength && registrationForm.password.$touched">Password must be at least 8 characters long</p>
+								</div>
+
+								
+								<div class="col-md-4 col-lg-4 col-xl-2 mb-2">
+									<button type="submit"
+										class="btn btn-success register-form-submit"
+										ng-disabled="registrationForm.$invalid">{{ isEditMode ? 'Update' : 'Submit' }}</button>
+								</div>	
+							</div>
+							<div ng-if="registrationMessage" class="alert alert-success errorstyle" role="alert">
+							{{ registrationMessage }}</div>
+
+						<!-- Error message display -->
+						<div ng-if="userExistsError" class="alert alert-danger errorstyle" role="alert">
+							{{ userExistsError }}</div>
+						</form>
+						<!-- Success message display -->
+					</div>
+               </div>
+				 
+				  <!-- CustomGrid  -->
+		  <custom-grid  ng-if="filterData && pageData.length > 0" page-data="pageData"
+			total-Records="totalRecords" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterData"
+			call-back="loadData(item)" action="actionObj"
+			></custom-grid>
+				 
+			</div>
+			
+		</div>
+	</div>	
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>			
+</body>

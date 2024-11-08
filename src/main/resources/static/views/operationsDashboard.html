@@ -1,0 +1,188 @@
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="top-part">
+				<div class="logo">
+					<img src="assets/img/logo.png" alt="logo" class="img-fluid">
+				</div>
+				<div class="user-name">{{op.opDesc}} Dashboard</div>
+
+				<!-- User Function Dropdown -->
+				<div class="user-function dropdown">
+					<div class="top-filter">
+						<div class="homefilter" id="homefilterDropdownButton"
+							ng-click="hometoggleFilterDropdown()">
+							<span class="append-year">{{selectedYear}}</span><i
+								class="ph-bold ph-funnel"></i>
+						</div>
+						<!-- Dropdown Content -->
+						<div id ="filter-dropDown"
+							class="home-filter-input dropdown-menu filter-dropdown-content right0"
+							ng-class="{'show': isHomeFilterDropdownVisible}"
+							aria-labelledby="homefilterDropdownButton">
+
+							<!-- Year Dropdown Input -->
+							<div class="form-group ">
+								<label for="yearSelect" class="form-label">Select Year</label> <select
+									id="yearSelect" ng-change="fetchDataForSelectedYear()" class="form-select" ng-model="selectedYear">
+									<option ng-repeat="year in yearsListForFilter" value="{{year}}">{{year}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div  id = "dropdown-menu" class="user-icon " ng-click="toggleDropdown()">
+						<img src="assets/img/user.png" alt="User Icon">
+					</div>
+					<ul id = "menu-items" class="dropdown-menu custom-dropdown-menu"
+						ng-class="{'show': isDropdownVisible}">
+						<li><a class="dropdown-item" ng-click="toggleUserDashboard()">Dashboard</a></li>
+						<li><a class="dropdown-item" ng-click = "openProfileModal()">Profile</a></li>
+						<li><a class="dropdown-item" ng-click="logout()">Logout</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+
+		<!-- Modal Profile-->
+		<div class="modal fade" id="profileModal" data-bs-backdrop="static"
+			tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="profileModalLabel">Profile
+							Details</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click="closeProfileModal()"></button>
+					</div>
+					<div class="modal-body">
+						<div class="profile-details">
+							<div class="row">
+								<div class="col-lg-12 prohd">
+									<h6>Employee ID:</h6>
+									<span>{{ userData.id }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Name:</h6>
+									<span>{{ userData.username }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Designation:</h6>
+									<span>{{ userData.designation }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Email ID:</h6>
+									<span> {{ userData.email_id }} </span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Contact No:</h6>
+									<span> {{ userData.contactNo }} </span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!--Operations Dynamic form generation -->
+		<div class="operation-dynamic-form" ng-if="formVisible">
+			<form ng-submit="submitOperationForm()">
+				<div class="row operationBg pt-2 mt-2">
+					<div ng-repeat="(key, value) in  op.params" class="col-lg-{{op.colSize}}">
+						<label for="{{key}}" class="form-label">{{value.desc}}</label>
+						<!-- Check if the type is from refData-->
+						<div ng-if="value.sourceType == 'ref_master'">
+							<select id="{{name}}" name="{{name}}" ng-model="value.value"
+								class="form-select">
+								<option value="" disabled>Select {{value.desc}}</option>
+								<option ng-repeat="item in op.refData[value.sourceId]"
+									value="{{item.refValue}}">{{item.refName}}</option>
+							</select>
+						</div>
+					</div>
+					
+					<div ng-if="op" class="mb-2 col-lg-2">
+					<label for="selectedEmp" class="form-label" >Select Employees</label>
+					 <input type="text" id="selectedEmp"  class="form-control" name ="selectedEmp" ng-click="openSelectEmpForOpModal()" ng-model = "countofSelectedEmp">
+				    </div>
+					
+					<div ng-if="op" class="mb-2 col-lg-2">
+						<label for="reason" class="form-label">Reason<span>*</span></label>
+						<textarea id="reason" name="reason" rows="1" class="form-control"
+							ng-model="op.reason" required></textarea>
+					</div>
+					
+					
+					<div class="col-lg-1">
+						<button ng-if="op" type="submit"
+							class="btn btn-primary mt-3 submitStyle">Submit</button>
+					</div>
+				</div>
+		</form>
+	</div>
+
+		<!-- Custom grid displaying employee data -->
+		<custom-grid ng-if="filterData && pageDataForView" page-data="pageDataForView"
+			total-Records="totalRecords" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterData"
+			call-back="loadData(item)" action="actionObj"></custom-grid>
+
+
+		        <!-- Select Employees Modal -->
+				<div class="modal fade" id="selectEmpForOpModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+				        <div class="modal-content">
+				            <div class="modal-header">
+				                <h1 class="modal-title" id="userDetailsModalLabel"></h1>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ng-click="closeShowDetailsModal()"></button>
+				            </div>
+				            <div class="modal-body">
+				                <custom-grid ng-if="filterDataForView && pageData" 
+							             page-data="pageData"
+							             total-records="totalRecordsForView" 
+							             page-size="pageSize"
+							             screen="pageTitleForViewEmp" 
+							             filter-obj="filterDataForView"
+							             call-back="loadDataForView(item)" 
+							             action="actionObj" 
+							             year-min-date="yearMinDate" 
+							             year-max-date="yearMaxDate">
+							    </custom-grid>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				
+				
+				 <!-- View Employees Details Modal -->
+				<div class="modal fade" id="EmpDetailsModal" data-bs-backdrop="static" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+				    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+				        <div class="modal-content">
+				            <div class="modal-header">
+				                <h1 class="modal-title" id="userDetailsModalLabel"></h1>
+				                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ng-click="closeShowDetailsModal()"></button>
+				            </div>
+				            <div class="modal-body">
+				            
+				               <custom-grid ng-if="filterDataForDetails && filterDataForDetails" 
+							             page-data="filterDataForDetails"
+							             total-records="totalRecordsForDetails" 
+							             page-size="pageSize"
+							             screen="pageTitleForView" 
+							             filter-obj="filterDataForView"
+							             call-back="loadDataForView(item)" 
+							             action="actionObj">
+							    </custom-grid>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+  
+	</div>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+  <script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>

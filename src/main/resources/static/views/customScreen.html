@@ -1,0 +1,60 @@
+
+<div class="container-fluid mt-3">
+				<form class="row addempForm" ng-submit="submitForm()">
+					<div class="col-lg-12 regNewUser-hd">
+						<div class="screen-name">
+							<div>{{screen}}</div>
+							<button type="submit" class="btn btn-success"
+								ng-disabled="registrationForm.$invalid">Submit</button>
+						</div>
+						
+						
+					</div>
+					<div class="col-lg-12">
+						<!-- Employee ID Field -->
+						<div ng-repeat="(heading, dataList) in params.fields" class="row fromborder">
+							<div class="col-lg-12 pt-2 pb-2 subhd">
+								<span class="web-hd">{{heading}}</span>
+							</div>
+
+							<div class="col-lg-2"
+								ng-repeat="(key, value) in dataList track by $index">
+								<div ng-if="value.dataType != 'custom'">
+									<label for="{{value.fieldId}}" class="form-label">{{value.fieldName}}
+										<span style="color: red">*</span>
+									</label> <input type="{{value.dataType}}" ng-model="obj[value.fieldId]"
+										name="{{value.fieldId}}" class="form-control" required>
+								</div>
+								<div ng-if="value.dataType == 'custom'">
+									<span>Show Data <i class="ph ph-gear-six"
+										data-bs-toggle="modal"
+										data-bs-target="#{{value.fieldId}}Modal"></i></span>
+								</div>
+								<div class="modal fade" id="{{value.fieldId}}Modal"
+									tabindex="-1" aria-labelledby="userDetailsModalLabel"
+									aria-hidden="true">
+									<div class="modal-dialog modal-xl modal-dialog-scrollable">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h1 class="modal-title" id="userDetailsModalLabel">Add
+													Data Model Fields</h1>
+												<button type="button" class="btn-close"
+													data-bs-dismiss="modal" aria-label="Close"
+													ng-click="closeShowDetailsModal()"></button>
+											</div>
+											<div class="modal-body"></div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+							</div>
+						
+					</div>
+				</form>
+				
+				 <!-- for grid Display  -->
+				 <div>
+				 	<custom-grid   page-data="pageData" total-Records="totalRecords" page-size="pageSize" screen="screen" filter-obj="filterData"></custom-grid>
+				 </div>
+</div>

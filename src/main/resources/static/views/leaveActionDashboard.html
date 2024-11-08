@@ -1,0 +1,234 @@
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<div
+				class="top-part d-flex align-items-center justify-content-between">
+				<div class="logo">
+					<img src="assets/img/logo.png" alt="logo" class="img-fluid">
+				</div>
+
+				<div class="user-name">Leave Action Dashboard</div>
+
+				<!-- User Function Dropdown -->
+				<div class="user-function dropdown">
+					<div class="top-filter">
+						<div class="homefilter" id="homefilterDropdownButton"
+							ng-click="hometoggleFilterDropdown()">
+							<span class="append-year">{{selectedYear}}</span><i
+								class="ph-bold ph-funnel"></i>
+						</div>
+						<!-- Dropdown Content -->
+						<div id ="filter-dropDown"
+							class="home-filter-input dropdown-menu filter-dropdown-content right0"
+							ng-class="{'show': isHomeFilterDropdownVisible}"
+							aria-labelledby="homefilterDropdownButton">
+
+							<!-- Year Dropdown Input -->
+							<div class="form-group ">
+								<label for="yearSelect" class="form-label">Select Year</label> <select
+									id="yearSelect" ng-change="fetchDataForSelectedYear()" class="form-select" ng-model="selectedYear">
+									<option ng-repeat="year in yearsListForFilter" value="{{year}}">{{year}}</option>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div  id = "dropdown-menu" class="user-icon " ng-click="toggleDropdown()">
+						<img src="assets/img/user.png" alt="User Icon">
+					</div>
+					<ul id = "menu-items" class="dropdown-menu custom-dropdown-menu"
+						ng-class="{'show': isDropdownVisible}">
+						<li><a class="dropdown-item" ng-click="toggleUserDashboard()">Dashboard</a></li>
+						<li><a class="dropdown-item" ng-click = "openProfileModal()">Profile</a></li>
+						<li><a class="dropdown-item" ng-click="logout()">Logout</a></li>
+					</ul>
+				</div>
+			</div>
+
+		<!-- Modal Profile -->
+		<div class="modal fade" id="profileModal" data-bs-backdrop="static"
+			tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title fs-5" id="profileModalLabel">Profile
+							Details</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click="closeProfileModal()"></button>
+					</div>
+					<div class="modal-body">
+						<div class="profile-details">
+							<div class="row">
+								<div class="col-lg-12 prohd">
+									<h6>Employee ID:</h6>
+									<span>{{ userData.id }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Name:</h6>
+									<span>{{ userData.username }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Designation:</h6>
+									<span>{{ userData.designation }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Email ID:</h6>
+									<span>{{ userData.email_id }}</span>
+								</div>
+								<div class="col-lg-12 prohd">
+									<h6>Contact No:</h6>
+									<span>{{ userData.contactNo }}</span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+   
+
+         <!-- CustomGrid  -->
+		<custom-grid ng-if="filterData && pageData" page-data="pageData"
+			total-Records="totalRecords" page-size="pageSize"
+			screen="pageTitle" filter-obj="filterData"
+			call-back="loadData(item)" action="actionObj" year-min-date="yearMinDate" year-max-date="yearMaxDate"
+			></custom-grid>
+
+
+		<!-- User Details Modal -->
+		<div class="modal fade" id="userDetailsModal" tabindex="-1"
+			aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-scrollable">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h1 class="modal-title" id="userDetailsModalLabel">
+							{{empName}} ({{empUserId}})</h1>
+						<button type="button" class="btn-close" data-bs-dismiss="modal"
+							aria-label="Close" ng-click = "closeShowDetailsModal()"></button>
+					</div>
+					<div class="modal-body">
+							<div class="row mb-2">
+								<div class="col-lg-12 web-hd mt-ms">Leave Status</div>
+								<div class="col-lg-3">
+									<div class="userDetails_leave-st-today total-leave-bg">
+										<div class="st-icon">
+											<i class="ph ph-calendar-check"></i>
+										</div>
+										<div class="st-text">
+											<h5>Total Leave</h5>
+											<h5>[{{ counts.total }}]</h5>
+										</div>
+										<div class="available-leave-breakdown">
+											<div ng-repeat="leave in counts.leaveBreakdown">
+												<span>{{leave.type}}:&nbsp;</span> <span>{{
+													leave.total}}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-3">
+									<div class="userDetails_leave-st-today total-available-bg">
+										<div class="st-icon">
+											<i class="ph ph-calendar-check"></i>
+										</div>
+										<div class="st-text">
+											<h5>Available Leave</h5>
+											<h5>[{{counts.available }}]</h5>
+										</div>
+										<div class="available-leave-breakdown">
+											<div ng-repeat="leave in counts.leaveBreakdown">
+												<span>{{leave.type}}:&nbsp;</span> <span>{{
+													leave.available}}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-3">
+									<div class="userDetails_leave-st-today total-approved-bg">
+										<div class="st-icon">
+											<i class="ph ph-calendar-check"></i>
+										</div>
+										<div class="st-text">
+											<h5>Approved Leave</h5>
+											<h5>[{{counts.approved }}]</h5>
+										</div>
+										<div class="available-leave-breakdown">
+											<div ng-repeat="leave in counts.leaveBreakdown">
+												<span>{{leave.type}}:&nbsp;</span> <span>{{
+													leave.approved}}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+
+
+								<div class="col-lg-3">
+									<div class="userDetails_leave-st-today total-declined-bg">
+										<div class="st-icon">
+											<i class="ph ph-calendar-check"></i>
+										</div>
+										<div class="st-text">
+											<h5>Pending Leave</h5>
+											<h5>[{{counts.pending }}]</h5>
+										</div>
+
+										<div class="available-leave-breakdown">
+											<div ng-repeat="leave in counts.leaveBreakdown">
+												<span>{{leave.type}}:&nbsp;</span> <span>{{
+													leave.pending}}</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<custom-grid ng-if="filterDataForView && pageDataForView " 
+							             page-data="pageDataForView"
+							             total-records="totalRecordsForView" 
+							             page-size="pageSize"
+							             screen="pageTitleForView" 
+							             filter-obj="filterData"
+							             call-back="loadDataForView(item)" 
+							             action="actionObj" 
+							             year-min-date="yearMinDate" 
+							             year-max-date="yearMaxDate">
+							</custom-grid>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+		    <!-- Modal for Remarks (used for both Approve and Decline) -->
+			<div class="modal fade" id="remarksModal" tabindex="-1"
+			    aria-labelledby="remarksModalLabel" aria-hidden="true">
+			    <div class="modal-dialog">
+			        <div class="modal-content">
+			            <div class="modal-header">
+			                <h1 class="modal-title" id="remarksModalLabel">{{modalTitle}}</h1>
+			                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			            </div>
+			            <div class="modal-body">
+			                <form ng-submit="submitRemarks()">
+			                    <div class="mb-3">
+			                        <label for="remarks" class="form-label">Remarks</label>
+			                        <textarea class="form-control" id="remarks" ng-model="remarksInput" rows="3"></textarea>
+			                    </div>
+			                    <div class="text-end">
+			                        <button type="submit" class="btn btn-primary">Submit</button>
+			                    </div>
+			                </form>
+			            </div>
+			        </div>
+			    </div>
+			</div>
+		   <!--End for Remarks (used for both Approve and Decline -->
+	</div>        
+</div>
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js'></script>
+<script src="https://res.cloudinary.com/dxfq3iotg/raw/upload/v1569006273/BBBootstrap/choices.min.js?version=7.0.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+
+
